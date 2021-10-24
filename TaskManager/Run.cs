@@ -55,7 +55,7 @@ namespace TaskManager
                 }
                 if (menuSelection.Contains("killid"))
                 {
-                    KillProcessID(trueInput);
+                    KillProcessID(trueInput, filter);
                 }
                 if (menuSelection.Contains("killall"))
                 {
@@ -65,11 +65,32 @@ namespace TaskManager
             }
         }
 
-        public void KillProcessID(string input)
+        public void KillAll(string input)
         {
             try
             {
-                processHandler.KillProcessID(input.Split(' ')[1]);
+                processHandler.KillAll(input.Split(' ')[1]);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Invalid Syntax!");
+            }
+        }
+        public void KillProcessID(string input, string filter)
+        {
+            FilterHandler filterHandler = new FilterHandler();
+            List<string> killList = filterHandler.FilterData(filter, processHandler.GetAllProcessIDS(), "killid");
+
+            try
+            {
+                if (filter == string.Empty)
+                {
+                    processHandler.KillProcessID(input.Split(' ')[1]);
+                }
+                else
+                {
+                    processHandler.KillProcessID(killList);
+                }
             }
             catch (Exception)
             {

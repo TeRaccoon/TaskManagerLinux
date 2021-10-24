@@ -14,31 +14,57 @@ namespace TaskManager
             string[] filters = filter.Split('-');
             foreach (string filterChar in filters)
             {
-                switch (filterChar)
+                if (sender == "namedump" || sender == "nameiddump")
                 {
-                    case "o":
-                        data = OrderAlphabetically(data, sender);
-                        break;
+                    switch (filterChar)
+                    {
+                        case "o":
+                            data = OrderAlphabetically(data, sender);
+                            break;
 
-                    case "d":
-                        data = ClearDuplicates(data, sender);
-                        break;
+                        case "d":
+                            data = ClearDuplicates(data, sender);
+                            break;
+                    }
+                    if (filterChar.Contains("s\""))
+                    {
+                        SaveOutput(data, filter);
+                        return null;
+                    }
+                    if (filterChar.Contains("r\""))
+                    {
+                        return RegexOutput(data, filter, true);
+                    }
+                    if (filterChar.Contains("R\""))
+                    {
+                        return RegexOutput(data, filter, false);
+                    }
                 }
-                if (filterChar.Contains("s\""))
+                else if (sender.Contains("kill"))
                 {
-                    SaveOutput(data, filter);
-                    return null;
-                }
-                if (filterChar.Contains("r\""))
-                {
-                    return RegexOutput(data, filter, true);
-                }
-                if (filterChar.Contains("R\""))
-                {
-                    return RegexOutput(data, filter, false);
+                    if (filterChar.Contains("range"))
+                    {
+                        return GetKillList(data, filter);
+                    }
                 }
             }
             return data;
+        }
+
+        public List<string> GetKillList(List<string> data, string filter)
+        {
+            List<string> killList = new List<string>();
+            string pureRange = filter.Split('"')[1];
+            int lowerBound = Convert.ToInt32(pureRange.Split('-')[0]);
+            int upperBound = Convert.ToInt32(pureRange.Split('-')[1].Replace("\"", string.Empty));
+            for (int i = lowerBound; i < upperBound; i++)
+            {
+                if (data.Contains(i.ToString()))
+                {
+                    killList.Add(i.ToString());
+                }
+            }
+            return killList;
         }
 
         public List<string> RegexOutput(List<string> data, string filter, bool caseSensitive)
